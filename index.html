@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Water pH Value</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .ph-value {
+            font-size: 2em;
+            color: #4CAF50;
+        }
+        .status {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+        .container {
+            padding: 20px;
+            background-color: #f7f7f7;
+            border-radius: 10px;
+            width: 50%;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Water pH Value Monitor</h1>
+        <p>The current pH value is:</p>
+        <div class="ph-value" id="phValue">Loading...</div>
+        <div class="status" id="qualityStatus"></div>
+    </div>
+
+    <script>
+        // Function to fetch the pH value from Flask API and update the page
+        function fetchPhValue() {
+            fetch('/get-ph')
+                .then(response => response.json())
+                .then(data => {
+                    const phValue = data.ph_value;
+                    document.getElementById('phValue').textContent = phValue;
+
+                    // Determine water quality based on the pH value
+                    let qualityStatus = '';
+                    if (phValue < 6.5) {
+                        qualityStatus = 'The water is too acidic!';
+                        document.getElementById('qualityStatus').style.color = 'red';
+                    } else if (phValue > 8.5) {
+                        qualityStatus = 'The water is too basic!';
+                        document.getElementById('qualityStatus').style.color = 'orange';
+                    } else {
+                        qualityStatus = 'The water quality is good.';
+                        document.getElementById('qualityStatus').style.color = 'green';
+                    }
+
+                    document.getElementById('qualityStatus').textContent = qualityStatus;
+                })
+                .catch(error => console.error('Error fetching pH value:', error));
+        }
+
+        // Fetch the pH value every 3 seconds
+        setInterval(fetchPhValue, 3000);
+
+        // Fetch the pH value immediately when the page loads
+        fetchPhValue();
+    </script>
+</body>
+</html>
